@@ -8,7 +8,8 @@
     "lint": "eslint --ext .js,.ts .",
     "day1": "ts-node src/day1.ts",
     "day2": "ts-node src/day2",
-    "day3": "ts-node src/day3"
+    "day3": "ts-node src/day3",
+    "day4": "ts-node src/day4"
   },
   "keywords": [],
   "author": "",
