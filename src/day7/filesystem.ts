@@ -40,7 +40,19 @@ function findChildrenLess100k (folder: Folder, list: Folder[]) {
   }
 }
 
-export const findDirectorySizes = (commands: string[]) : number => {
+function findFolderToDelete (folder: Folder, sizeRequired: number, bestFolder?: Folder): Folder | undefined {
+  for (const child of folder.folders) {
+    if (child.size() >= sizeRequired) {
+      if (!bestFolder || child.size() < bestFolder.size()) {
+        bestFolder = child
+      }
+      bestFolder = findFolderToDelete(child, sizeRequired, bestFolder);
+    }
+  }
+  return bestFolder
+}
+
+function buildFolderStructure(commands: string[]) : Folder {
   let root: Folder | undefined = undefined;
   let current: Folder | undefined = undefined;
   for (const command of commands) {
@@ -85,7 +97,20 @@ export const findDirectorySizes = (commands: string[]) : number => {
   }
 
   if (!root) throw new Error('No root');
+  return root;
+}
 
+
+
+export const findDirectoryToDelete = (commands: string[]) : number => {
+  const root = buildFolderStructure(commands);
+  const spaceToFree = 30000000 - (70000000 - root.size());
+  const folderToDelete = findFolderToDelete(root, spaceToFree);
+  return folderToDelete?.size() || 0
+}
+
+export const findDirectorySizes = (commands: string[]) : number => {
+  const root = buildFolderStructure(commands);
   const less100k: Folder[] = []
   findChildrenLess100k(root, less100k)
   return less100k.reduce((prev, folder) => {
